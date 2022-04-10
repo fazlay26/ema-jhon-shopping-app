@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import './Signup.css'
+import auth from '../../firebase.init';
 
 const Signup = () => {
     const [email, setEmail] = useState('')
     const [pass, setPass] = useState('')
     const [confrimPass, setConfrimPass] = useState('')
     const [error, setError] = useState('')
-
+    const [createUserWithEmailAndPassword, user] = useCreateUserWithEmailAndPassword(auth) //1.auth ta firebase.init.js theke anbo ar useCreateUserWithEmailAndPassword eta react firebase hooks theke anbo
+    let navigate = useNavigate(); //react router theke import korbo
     const handlerEmail = e => {
         setEmail(e.target.value)
     }
@@ -17,14 +20,26 @@ const Signup = () => {
     const handlerConfirmPass = e => {
         setConfrimPass(e.target.value)
     }
+
+    useEffect(() => { //memory leak er ekta error dito jar karone useffect er moddhe ei kaaj ta kora.
+        if (user) { //jodi user pao jai tahole take amra shop component e pathai dibo.user pao jao mane holo signup hoya.
+            navigate('/shop')
+
+        }
+    })
     const handlerCreateUser = e => {
-        e.preventDefault()
+        e.preventDefault() //submit button e click korle jaate reload na hoy
 
         if (pass !== confrimPass) {
             setError('your two passwords did not match');
             return;
-
         }
+        if (pass.length < 6) { //password string tai pass.length
+            setError("password must be 6 digit or longer")
+        }
+
+        createUserWithEmailAndPassword(email, pass) // 2.ekhn signup korle user er info firebase authentication e jabe
+
 
     }
     return (
