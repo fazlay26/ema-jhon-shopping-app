@@ -53,3 +53,32 @@
     color: #FF9900;
     text-decoration: none;
 }
+
+.social-icon li {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+
+
+    list-style: none;
+}
+
+.social-icon li img {
+    margin-right: 10px;
+
+    width: 50%;
+    height: 50%;
+    cursor: pointer;
+}
+
+.social-media-container {
+    display: flex;
+    justify-content: center;
+}
+
+.reset-pass {
+    text-decoration: underline;
+    cursor: pointer;
+    color: #FF9900;
+}

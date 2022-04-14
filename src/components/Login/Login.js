@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { useSendPasswordResetEmail, useSignInWithEmailAndPassword, useSignInWithGoogle } from 'react-firebase-hooks/auth';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import auth from '../../firebase.init';
 import './Login.css'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
     const [email, setEmail] = useState('')
@@ -13,6 +15,8 @@ const Login = () => {
         loading,
         error,
     ] = useSignInWithEmailAndPassword(auth);
+    const [signInWithGoogle, user1] = useSignInWithGoogle(auth);
+    const [sendPasswordResetEmail] = useSendPasswordResetEmail(auth);
     let navigate = useNavigate();
     let location = useLocation();
     let from = location.state?.from?.pathname || "/";
@@ -29,10 +33,33 @@ const Login = () => {
 
         }
     })
+    useEffect(() => { //memory leak er ekta error dito jar karone useffect er moddhe ei kaaj ta kora.
+        if (user1) { //jodi user pao jai tahole take amra shop component e pathai dibo.user pao jao mane holo signup hoya.
+            navigate(from, { replace: true });
+
+        }
+    })
     const handlerUserSignIn = e => {
         e.preventDefault()
-
         signInWithEmailAndPassword(email, pass)
+    }
+    const hadnlerGoogleSignIn = () => {
+        signInWithGoogle()
+        // .then(() => {
+        //     navigate(from, { replace: true });
+        // })
+    }
+    const resetEmail = async () => {
+        if (email) {
+
+            await sendPasswordResetEmail(email);
+            toast('Sent email');
+        }
+        else {
+            toast('Please Provide Your Email');
+        }
+
+
     }
     return (
 
@@ -53,9 +80,22 @@ const Login = () => {
 
                     <input className='form-submit' type="submit" value="Login" />
                 </form>
+                <p onClick={resetEmail}>Forget Your Password?<span className='reset-pass' >Reset Password</span></p>
                 <p>
                     New to Ema-John? <Link className='form-link' to="/signup">Create an account</Link>
                 </p>
+                <div className='social-media-container'>
+                    <div>
+                        <p>Login With Social Media</p>
+                        <ul className='social-icon'>
+                            <li><img onClick={hadnlerGoogleSignIn} src="https://cdn-icons-png.flaticon.com/512/2702/2702602.png" alt="" />
+
+                                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968764.png" alt="" /> </li>
+                        </ul>
+                    </div>
+                </div>
+                <ToastContainer
+                    position="top-left" />
             </div>
         </div>
 

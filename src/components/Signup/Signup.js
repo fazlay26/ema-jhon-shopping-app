@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { useCreateUserWithEmailAndPassword, useSendEmailVerification, useSignInWithGoogle } from 'react-firebase-hooks/auth';
 import './Signup.css'
 import auth from '../../firebase.init';
 
@@ -9,6 +9,8 @@ const Signup = () => {
     const [pass, setPass] = useState('')
     const [confrimPass, setConfrimPass] = useState('')
     const [error, setError] = useState('')
+    const [signInWithGoogle, googleUser] = useSignInWithGoogle(auth);
+    const [sendEmailVerification] = useSendEmailVerification(auth);
     const [createUserWithEmailAndPassword, user] = useCreateUserWithEmailAndPassword(auth) //1.auth ta firebase.init.js theke anbo ar useCreateUserWithEmailAndPassword eta react firebase hooks theke anbo
     let navigate = useNavigate(); //react router theke import korbo
     const handlerEmail = e => {
@@ -27,7 +29,10 @@ const Signup = () => {
 
         }
     })
-    const handlerCreateUser = e => {
+    if (googleUser) {
+        navigate('/shop')
+    }
+    const handlerCreateUser = (e) => {
         e.preventDefault() //submit button e click korle jaate reload na hoy
 
         if (pass !== confrimPass) {
@@ -39,8 +44,16 @@ const Signup = () => {
         }
 
         createUserWithEmailAndPassword(email, pass) // 2.ekhn signup korle user er info firebase authentication e jabe
-
-
+        // await sendEmailVerification();
+        // alert('Sent email');
+        verfiyEmail()
+    }
+    const verfiyEmail = async () => {
+        await sendEmailVerification();
+        alert('Sent email');
+    }
+    const hadnlerGoogleSignIn = () => {
+        signInWithGoogle()
     }
     return (
         <div className='form-container'>
@@ -70,6 +83,16 @@ const Signup = () => {
                 <p>
                     Already Have an Account? <Link className='form-link' to="/login">Login</Link>
                 </p>
+                <div className='social-media-container'>
+                    <div>
+                        <p>Login With Social Media</p>
+                        <ul className='social-icon'>
+                            <li><img onClick={hadnlerGoogleSignIn} src="https://cdn-icons-png.flaticon.com/512/2702/2702602.png" alt="" />
+
+                                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968764.png" alt="" /> </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     );
